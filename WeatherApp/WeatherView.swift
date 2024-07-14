@@ -42,6 +42,8 @@ struct WeatherView: View {
                        }
                        .frame(height: 200) // Wir legen die Höhe von ScrollView fest
                        .cornerRadius(10)
+                       
+                       ClothesRecommendationView(currentWeather: weatherData.current)
 
                        Spacer() // Wir haben Spacer hinzugefügt, um andere Inhalte nach oben zu bringen
                    } else {
@@ -80,6 +82,51 @@ struct WeatherView: View {
     }
     
    }
+
+struct ClothesRecommendationView: View {
+    let currentWeather: WeatherData.Current
+    
+    var body: some View {
+        VStack {
+            Text("Bekleidungsempfehlungen")
+                .font(.title)
+                .padding(.top,20)
+            
+            if currentWeather.cloudCover == 0 && currentWeather.rain == 0 {
+                Image("t-shirt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                Text("Ein sonniger Tag! Sie können ein T-Shirt tragen.")
+                    .padding()
+            } else if currentWeather.temperature2m < 20 {
+                Image("sweatshirt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                Text("Das Wetter ist etwas kühl. Ich empfehle das Tragen eines Sweatshirts.")
+                    .padding()
+            } else if currentWeather.rain > 0 {
+                Image("regenschirm")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                Text("Es ist regnerisch heute! Vergessen Sie nicht, Ihren Regenschirm mitzunehmen.")
+                    .padding()
+            } else {
+                Image("t-shirt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                Text("Es ist ein schöner Tag! Sie können bequem ausgehen")
+                    .padding()
+            }
+        }
+        .cornerRadius(10)
+        .padding()
+    }
+    
+}
 
 #Preview {
     WeatherView()
