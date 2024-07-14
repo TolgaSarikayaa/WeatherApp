@@ -12,60 +12,90 @@ struct WeatherView: View {
     @State private var cityQuery = ""
 
     var body: some View {
-        VStack {
-            TextField("Geben Sie den Namen der Stadt ein", text: $cityQuery)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            Button("Wetter anzeigen") {
-                Task {
-                    await viewModel.fetchWeather(for: cityQuery)
+        ZStack {
+            Color.blue.ignoresSafeArea()
+
+            VStack {
+                Text("Willkommen")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                    .padding()
+
+                TextField("Geben Sie den Namen der Stadt ein", text: $cityQuery)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+
+                Button(action: {
+                    Task {
+                        await viewModel.fetchWeather(for: cityQuery)
+                    }
+                }) {
+                    Text("Wetter anzeigen")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue.opacity(0.7))
+                        .cornerRadius(10)
+                }
+
+                Spacer()
+
+                if let weatherData = viewModel.weatherData {
+                    VStack {
+                        HStack {
+                            Text("Current Temperature: \(Int(weatherData.current.temperature2m.rounded()))°C")
+                                .foregroundColor(.white)
+                            Image(systemName: determineWeatherIcon(current: weatherData.current))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 20)
+
+                        ScrollView(.horizontal) {
+                            ScrollViewReader { proxy in
+                                LazyHStack(spacing: 20) {
+                                    ForEach(weatherData.hourly.time.indices, id: \.self) { index in
+                                        VStack(alignment: .leading) {
+                                            Text("Time: \(viewModel.dateFormatter.string(from: weatherData.hourly.time[index]))")
+                                                .foregroundColor(.white)
+                                            Text("Temperature: \(Int(weatherData.hourly.temperature2m[index].rounded()))°C")
+                                                .foregroundColor(.white)
+                                            Text("Rain: \(Int((weatherData.hourly.rain[index]).rounded())) mm")
+                                                .foregroundColor(.white)
+                                            Text("Showers: \(Int((weatherData.hourly.showers[index]).rounded())) mm")
+                                                .foregroundColor(.white)
+                                            Text("Cloud: \(Int((weatherData.current.cloudCover).rounded()))%")
+                                                .foregroundColor(.white)
+                                            Image(systemName: determineHourlyWeatherIcon(weatherData: weatherData, index: index))
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding()
+                                        .background(Color.gray.opacity(0.5))
+                                        .cornerRadius(10)
+                                        .id(index)
+                                    }
+                                }
+                                .padding()
+                            }
+                        }
+                        .frame(height: 200)
+                        .cornerRadius(10)
+
+                        ClothesRecommendationView(currentWeather: weatherData.current)
+
+                        Spacer()
+                    }
+                } else {
+                    Text("Bitte geben Sie eine Stadt ein, um das Wetter anzuzeigen.")
+                        .foregroundColor(.white)
+                        .padding()
                 }
             }
-                   if let weatherData = viewModel.weatherData {
-                       HStack {
-                           Text("Current Temperature: \(Int(weatherData.current.temperature2m.rounded()))°C")
-                           Image(systemName: determineWeatherIcon(current: weatherData.current))
-                       }
-                       .padding(.top, 20) // Wir haben oben etwas Platz hinzugefügt
+        }
+    }
 
-                       ScrollView(.horizontal) {
-                           ScrollViewReader { proxy in
-                               LazyHStack(spacing: 20) {
-                                   ForEach(weatherData.hourly.time.indices, id: \.self) { index in
-                                       VStack(alignment: .leading) {
-                                           Text("Time: \(viewModel.dateFormatter.string(from: weatherData.hourly.time[index]))")
-                                           Text("Temperature: \(Int(weatherData.hourly.temperature2m[index].rounded()))°C")
-                                           Text("Rain: \(Int((weatherData.hourly.rain[index]).rounded())) mm")
-                                           Text("Showers: \(Int((weatherData.hourly.showers[index]).rounded())) mm")
-                                           Text("Cloud: \(Int((weatherData.current.cloudCover).rounded()))%")
-                                           Image(systemName: determineHourlyWeatherIcon(weatherData: weatherData, index: index))
-                                       }
-                                       .padding()
-                                       .background(Color.gray.opacity(0.1))
-                                       .cornerRadius(10)
-                                       .id(index) //Wir haben eine ID für ScrollViewReader hinzugefügt
-                                   }
-                               }
-                               .padding()
-                           }
-                       }
-                       .frame(height: 200) // Wir legen die Höhe von ScrollView fest
-                       .cornerRadius(10)
-                       
-                       ClothesRecommendationView(currentWeather: weatherData.current)
 
-                       Spacer() // Wir haben Spacer hinzugefügt, um andere Inhalte nach oben zu bringen
-                   } else {
-                       //ProgressView()
-                   }
-               }
-               .onAppear {
-                   Task {
-                       await viewModel.fetchWeather(for: cityQuery)
-                   }
-               }
-           }
-    
     func determineWeatherIcon(current: WeatherData.Current) -> String {
            if current.cloudCover > 0 && current.rain > 0 {
                return "cloud.sun.rain"
