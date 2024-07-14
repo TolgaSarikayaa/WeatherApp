@@ -16,16 +16,19 @@ struct WeatherView: View {
             Color.blue.ignoresSafeArea()
 
             VStack {
-                Text("Willkommen")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
-                    .padding()
+                if let weatherData = viewModel.weatherData {
+                    Text(welcomeText(current: weatherData.current))
+                        .font(.largeTitle)
+                        .foregroundColor(.white)
+                        .padding()
+                }
 
                 TextField("Geben Sie den Namen der Stadt ein", text: $cityQuery)
                     .padding()
                     .background(Color.white)
                     .cornerRadius(10)
                     .padding(.horizontal)
+                    .foregroundStyle(.black)
 
                 Button(action: {
                     Task {
@@ -94,6 +97,18 @@ struct WeatherView: View {
             }
         }
     }
+    
+    func welcomeText(current: WeatherData.Current) -> String {
+        if current.cloudCover == 0 && current.rain == 0 {
+           return "Schönes Wetter heute"
+        } else if current.temperature2m > 20 {
+            return "Heißes Wetter heute"
+        } else if current.temperature2m < 12 {
+           return "Kaltes Wetter heute"
+        } else {
+            return "Wilkommen"
+        }
+    }
 
 
     func determineWeatherIcon(current: WeatherData.Current) -> String {
@@ -127,7 +142,7 @@ struct ClothesRecommendationView: View {
     
     var body: some View {
         VStack {
-            Text("Bekleidungsempfehlungen")
+            Text("Das können Sie heute tragen")
                 .font(.title)
                 .padding(.top,20)
             
@@ -136,14 +151,14 @@ struct ClothesRecommendationView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 100)
-                Text("Ein sonniger Tag! Sie können ein T-Shirt tragen.")
+                Text("Ein sonniger Tag! Sie können ein T-Shirt tragen ☀️.")
                     .padding()
             } else if currentWeather.temperature2m < 20 {
                 Image("sweatshirt")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 100)
-                Text("Das Wetter ist etwas kühl. Ich empfehle das Tragen eines Sweatshirts.")
+                Text("Das Wetter ist etwas kühl. Ich empfehle das Tragen eines Sweatshirts ⛅️.")
                     .padding()
             } else if currentWeather.rain > 0 {
                 Image("regenschirm")
@@ -157,7 +172,7 @@ struct ClothesRecommendationView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 100)
-                Text("Es ist ein schöner Tag! Sie können bequem ausgehen")
+                Text("Es ist ein schöner Tag! Sie können bequem ausgehen 🌞")
                     .padding()
             }
         }
