@@ -21,7 +21,7 @@ class WeatherViewModel: ObservableObject {
 
     func fetchWeather() async {
         do {
-            let data = try await weatherService.fetchWeatherData(latitude: 52.52, longitude: 13.41)
+            let data = try await weatherService.fetchWeatherData(latitude: 36.9081, longitude: 30.6956)
             DispatchQueue.main.async {
                 self.weatherData = data
             }
