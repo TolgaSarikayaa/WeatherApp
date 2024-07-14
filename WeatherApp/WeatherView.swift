@@ -9,9 +9,18 @@ import SwiftUI
 
 struct WeatherView: View {
     @StateObject private var viewModel = WeatherViewModel()
+    @State private var cityQuery = ""
 
     var body: some View {
         VStack {
+            TextField("Geben Sie den Namen der Stadt ein", text: $cityQuery)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+            Button("Wetter anzeigen") {
+                Task {
+                    await viewModel.fetchWeather(for: cityQuery)
+                }
+            }
                    if let weatherData = viewModel.weatherData {
                        HStack {
                            Text("Current Temperature: \(Int(weatherData.current.temperature2m.rounded()))°C")
@@ -28,7 +37,7 @@ struct WeatherView: View {
                                            Text("Temperature: \(Int(weatherData.hourly.temperature2m[index].rounded()))°C")
                                            Text("Rain: \(Int((weatherData.hourly.rain[index]).rounded())) mm")
                                            Text("Showers: \(Int((weatherData.hourly.showers[index]).rounded())) mm")
-                                           Text("Cloud: \(Int((weatherData.current.cloudCover).rounded()))")
+                                           Text("Cloud: \(Int((weatherData.current.cloudCover).rounded()))%")
                                            Image(systemName: determineHourlyWeatherIcon(weatherData: weatherData, index: index))
                                        }
                                        .padding()
@@ -47,12 +56,12 @@ struct WeatherView: View {
 
                        Spacer() // Wir haben Spacer hinzugefügt, um andere Inhalte nach oben zu bringen
                    } else {
-                       ProgressView()
+                       //ProgressView()
                    }
                }
                .onAppear {
                    Task {
-                       await viewModel.fetchWeather()
+                       await viewModel.fetchWeather(for: cityQuery)
                    }
                }
            }

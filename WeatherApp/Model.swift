@@ -26,3 +26,15 @@ struct WeatherData {
         let rain: [Float]
     }
 }
+
+struct SearchResponse: Decodable {
+    struct Result: Decodable {
+        let id: Int
+        let name: String
+        let latitude: Double
+        let longitude: Double
+        
+    }
+    
+    let results: [Result]
+}

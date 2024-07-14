@@ -63,6 +63,35 @@ class WeatherService {
 
         return weatherData
     }
-}
+    
+    func searchCoordinates(for city: String) async throws -> (latitude: Double, longitude: Double) {
+            let formattedCity = city.replacingOccurrences(of: " ", with: "+")
+            let urlString = "https://geocoding-api.open-meteo.com/v1/search?name=\(formattedCity)&count=1&language=en&format=json"
+
+            guard let url = URL(string: urlString) else {
+                throw URLError(.badURL)
+            }
+
+            print("Fetching coordinates for \(city) from URL: \(url)")
+
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoder = JSONDecoder()
+            
+            do {
+                let searchResponse = try decoder.decode(SearchResponse.self, from: data)
+                guard let result = searchResponse.results.first else {
+                    throw URLError(.badServerResponse)
+                }
+
+                let latitude = result.latitude
+                let longitude = result.longitude
+
+                return (latitude, longitude)
+            } catch {
+                throw error
+            }
+        }
+    }
+
 
 
