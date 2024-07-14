@@ -17,6 +17,8 @@ WeatherApp is a Swift-based application that provides users with detailed weathe
 - **Open-Meteo API:** Used for retrieving weather data.
 - **Geocoding API:** Used for obtaining coordinates from city names.
 
+https://github.com/user-attachments/assets/04b3761a-9282-4b57-ae28-d6ae30304550
+
 - Assets
 - T-Shirt Icon von Icons8
 Sweatshirt Icon von Icons8
